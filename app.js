@@ -50,6 +50,7 @@ function generateRandomRoll() {
 function setWinnerPanel() {
     var panel = "player-" + activePlayer + "-panel";
     document.getElementById(panel).className = panel + " winner";
+    document.querySelector('#name-' + activePlayer).textContent = "Winner!";
     setTimeout(function() {
         alert("Player " + (activePlayer + 1) + " wins!");
         initializeNewGame();
@@ -93,16 +94,16 @@ document.querySelector('.btn-roll').onclick = function() {
     }
     
     dice = generateRandomRoll();
-    if(dice == 1) {
-        document.querySelector('#current-' + activePlayer).textContent = dice;
+    if(dice === 1) {
+        diceDom.src = "dice-" + dice + ".png";
+        document.querySelector('#current-' + activePlayer).textContent = 0;
         roundScore = 0;
         changePlayer();
         return;
     }
     else {
-        document.querySelector('#current-' + activePlayer).textContent = dice;
         roundScore += dice;
+        document.querySelector('#current-' + activePlayer).textContent = roundScore;
         diceDom.src = "dice-" + dice + ".png";
-        console.log(dice);
     }
 }
