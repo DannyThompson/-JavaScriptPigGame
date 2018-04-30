@@ -1,7 +1,7 @@
 /*
-This was done as a part of a course project to learn JavaScript through Udemy.    (https://www.udemy.com/the-complete-javascript-course)
+This was done as a part of a (first) course project to learn JavaScript through Udemy.    (https://www.udemy.com/the-complete-javascript-course)
 The index.html, images, and style.css were provided, with only some id's added from me.
-Only this class was 100% done by me.
+Only this class was 100% done by me to challenge myself.
 */
 
 /* 
@@ -19,6 +19,7 @@ var scores = [0, 0];
 var roundScore = 0;
 var activePlayer = 0;
 var dice = 0;
+var gameCompleted = false;
 var diceDom = document.querySelector('.dice');
 
 initializeNewGame();
@@ -26,19 +27,23 @@ initializeNewGame();
 /* Change Player when activePlayer rolls a 1 or holds */
 function changePlayer() {
     activePlayer = activePlayer === 0 ? 1 : 0;
-    setAndUndoActivePanels(activePlayer);
+    setAndUndoActivePanels(true);
 }
 
 /* Alternate between panel types (active/inactive), based on who's turn it is */
-function setAndUndoActivePanels(active) {
-     var inactive = active === 0 ? 1 : 0;
-     var getPanelId = function(panel) {
-        return "player-" + panel + "-panel";  
+function setAndUndoActivePanels(shoudToggle) {
+    diceDom.style.display = 'none';
+    if(shoudToggle) {
+        document.querySelector('.player-1-panel').classList.toggle('active');
+        document.querySelector('.player-0-panel').classList.toggle('active');
     }
-    document.getElementById(getPanelId(inactive))
-        .className = getPanelId(inactive);
-    document.getElementById(getPanelId(active))
-        .className = getPanelId(active) + " active";
+    document.getElementById('current-0').textContent = 0;
+    document.getElementById('current-1').textContent = 0;
+}
+
+function togglePlayers() {
+     document.querySelector('.player-1-panel').classList.toggle('active');
+     document.querySelector('.player-0-panel').classList.toggle('active');
 }
 
 /* Generate a random # between 1 and 6 to simulate a dice roll */
@@ -48,9 +53,10 @@ function generateRandomRoll() {
 
 /* The winner panel will be changed and an alert will appear to notify the winner. */
 function setWinnerPanel() {
-    var panel = "player-" + activePlayer + "-panel";
-    document.getElementById(panel).className = panel + " winner";
+    var panel = ".player-" + activePlayer + "-panel";
+    document.querySelector(panel).classList.toggle('winner');
     document.querySelector('#name-' + activePlayer).textContent = "Winner!";
+    gameCompleted = true;
     setTimeout(function() {
         alert("Player " + (activePlayer + 1) + " wins!");
         initializeNewGame();
@@ -59,15 +65,14 @@ function setWinnerPanel() {
 
 /* Initialize the Game */
 function initializeNewGame() {
-    diceDom.style.display = 'none';
-    this.document.querySelector('#current-0').textContent = 0;
-    this.document.querySelector('#current-1').textContent = 0;
+    setAndUndoActivePanels(activePlayer === 1 && !gameCompleted );
+//    this.document.querySelector('#current-0').textContent = 0;
+//    this.document.querySelector('#current-1').textContent = 0;
     this.document.querySelector('#score-0').textContent = 0;
     this.document.querySelector('#score-1').textContent = 0;
     scores = [0, 0];
     roundScore, activePlayer = 0;
     dice = 0;
-    setAndUndoActivePanels(0);
 }
 
 /************************/
@@ -80,7 +85,7 @@ document.querySelector('.btn-new').onclick = function() {
 document.querySelector('.btn-hold').onclick = function() {
     scores[activePlayer] += roundScore;
     document.querySelector('#score-' + activePlayer).textContent = scores[activePlayer];
-    if(scores[activePlayer] >= 50) {
+    if(scores[activePlayer] >= 10) {
         setWinnerPanel();
         return;
     }
@@ -94,10 +99,11 @@ document.querySelector('.btn-roll').onclick = function() {
     }
     
     dice = generateRandomRoll();
+    
     if(dice === 1) {
         diceDom.src = "dice-" + dice + ".png";
-        document.querySelector('#current-' + activePlayer).textContent = 0;
         roundScore = 0;
+        document.querySelector('#current-' + activePlayer).textContent = roundScore;
         changePlayer();
         return;
     }
