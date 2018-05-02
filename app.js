@@ -19,44 +19,38 @@ var scores = [0, 0];
 var roundScore = 0;
 var activePlayer = 0;
 var dice = 0;
-var gameCompleted = false;
 var diceDom = document.querySelector('.dice');
+var hasBeenWon = false;
 
 initializeNewGame();
 
 /* Change Player when activePlayer rolls a 1 or holds */
 function changePlayer() {
     activePlayer = activePlayer === 0 ? 1 : 0;
-    setAndUndoActivePanels(true);
+    setAndUndoActivePanels();
 }
 
 /* Alternate between panel types (active/inactive), based on who's turn it is */
-function setAndUndoActivePanels(shoudToggle) {
+function setAndUndoActivePanels() {
     diceDom.style.display = 'none';
-    if(shoudToggle) {
-        document.querySelector('.player-1-panel').classList.toggle('active');
-        document.querySelector('.player-0-panel').classList.toggle('active');
-    }
-    document.getElementById('current-0').textContent = 0;
-    document.getElementById('current-1').textContent = 0;
+    togglePlayers();
 }
 
+/* Used in initialize, and when the player holds. Reset the current score's text to 0. */
+function resetCurrentScore() {
+    document.getElementById('current-' + activePlayer).textContent = 0;
+}
+
+/* Swap between active players */
 function togglePlayers() {
      document.querySelector('.player-1-panel').classList.toggle('active');
      document.querySelector('.player-0-panel').classList.toggle('active');
-}
-
-/* Generate a random # between 1 and 6 to simulate a dice roll */
-function generateRandomRoll() {
-    return Math.floor(Math.random() * 6) + 1;
 }
 
 /* The winner panel will be changed and an alert will appear to notify the winner. */
 function setWinnerPanel() {
     var panel = ".player-" + activePlayer + "-panel";
     document.querySelector(panel).classList.toggle('winner');
-    document.querySelector('#name-' + activePlayer).textContent = "Winner!";
-    gameCompleted = true;
     setTimeout(function() {
         alert("Player " + (activePlayer + 1) + " wins!");
         initializeNewGame();
@@ -65,14 +59,21 @@ function setWinnerPanel() {
 
 /* Initialize the Game */
 function initializeNewGame() {
-    setAndUndoActivePanels(activePlayer === 1 && !gameCompleted );
-//    this.document.querySelector('#current-0').textContent = 0;
-//    this.document.querySelector('#current-1').textContent = 0;
+    if(activePlayer === 1) {
+        togglePlayers();
+    }
+    if(hasBeenWon) {
+        document.querySelector('.player-' + activePlayer + '-panel').classList.toggle('winner');
+    }
+    resetCurrentScore();
+    diceDom.style.display = 'none';
+    scores = [0, 0];
+    roundScore = 0;
+    activePlayer = 0;
+    dice = 0;
     this.document.querySelector('#score-0').textContent = 0;
     this.document.querySelector('#score-1').textContent = 0;
-    scores = [0, 0];
-    roundScore, activePlayer = 0;
-    dice = 0;
+    hasBeenWon = false;
 }
 
 /************************/
@@ -86,10 +87,12 @@ document.querySelector('.btn-hold').onclick = function() {
     scores[activePlayer] += roundScore;
     document.querySelector('#score-' + activePlayer).textContent = scores[activePlayer];
     if(scores[activePlayer] >= 10) {
+        hasBeenWon = true;
         setWinnerPanel();
         return;
     }
     roundScore = 0;
+    resetCurrentScore();
     changePlayer();
 }
 
@@ -98,7 +101,7 @@ document.querySelector('.btn-roll').onclick = function() {
         diceDom.style.display = 'inline';
     }
     
-    dice = generateRandomRoll();
+    dice = Math.floor(Math.random() * 6) + 1; //Generate random # 1-6
     
     if(dice === 1) {
         diceDom.src = "dice-" + dice + ".png";
@@ -106,8 +109,7 @@ document.querySelector('.btn-roll').onclick = function() {
         document.querySelector('#current-' + activePlayer).textContent = roundScore;
         changePlayer();
         return;
-    }
-    else {
+    } else {
         roundScore += dice;
         document.querySelector('#current-' + activePlayer).textContent = roundScore;
         diceDom.src = "dice-" + dice + ".png";
